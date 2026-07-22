@@ -15,6 +15,7 @@ export class Renderer {
     if (!app) throw new Error("App not found");
 
     app.appendChild(this.renderer.domElement);
+    console.log("Renderer initialized");
   }
 
   public render(scene: THREE.Scene, camera: THREE.Camera): void {
