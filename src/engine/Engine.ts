@@ -38,9 +38,9 @@ private controls: OrbitControls;
 
 public start(): void {
 
+    this.scene.update();
     const animate = () => {
 
-        this.scene.update();
         this.controls.update();
 
         this.renderer.render(

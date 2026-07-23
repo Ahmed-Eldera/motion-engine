@@ -32,7 +32,7 @@ export class Leg extends GameObject {
     return this.thigh;
   }
 
-  public getShine(): Bone {
+  public getShin(): Bone {
     return this.shin;
   }
 

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import type { Arm } from "../assets/Arm";
 import type { StickFigure } from "../assets/StickFigure";
-import type { Pose,ArmPose,LegPose } from "./Pose";
+import type { Pose, ArmPose, LegPose } from "./Pose";
 import type { Leg } from "../assets/Leg";
 
 export class SkeletonRetargeter {
@@ -23,37 +23,62 @@ export class SkeletonRetargeter {
     this.updateForearm(pose.rightArm, skeleton.getRightArm());
   }
 
-private updateUpperArm(source: ArmPose, target: Arm): void {
+  private updateUpperArm(source: ArmPose, target: Arm): void {
+    const worldDirection = new THREE.Vector3()
+      .subVectors(source.elbow, source.shoulder)
+      .normalize();
 
-    const upperDirection = new THREE.Vector3()
-        .subVectors(source.elbow, source.shoulder)
-        .normalize();
+    const localDirection = this.toLocalDirection(
+      worldDirection,
+      target.getUpperArm().getEndJoint(),
+    );
+    target.getUpperArm().setDirection(localDirection);
+  }
+  private updateForearm(source: ArmPose, target: Arm): void {
+    const worldDirection = new THREE.Vector3()
+      .subVectors(source.wrist, source.elbow)
+      .normalize();
+          const localDirection = this.toLocalDirection(
+      worldDirection,
+      target.getForearm().getEndJoint(),
+    );
 
-    target.getUpperArm().setDirection(upperDirection);
-}
+    target.getForearm().setDirection(localDirection);
+  }
 
-private updateThigh(source: LegPose, target: Leg): void {
+  private updateThigh(source: LegPose, target: Leg): void {
+    const worldDirection = new THREE.Vector3()
+      .subVectors(source.knee, source.hip)
+      .normalize();
+    const localDirection = this.toLocalDirection(
+      worldDirection,
+      target.getThigh().getEndJoint(),
+    );
+    target.getThigh().setDirection(localDirection);
+  }
 
-    const upperDirection = new THREE.Vector3()
-        .subVectors(source.knee, source.hip)
-        .normalize();
 
-    target.getThigh().setDirection(upperDirection);
-}
+  private updateShin(source: LegPose, target: Leg): void {
+    const worldDirection = new THREE.Vector3()
+      .subVectors(source.ankle, source.knee)
+      .normalize();
+    const localDirection = this.toLocalDirection(
+      worldDirection,
+      target.getShin().getEndJoint(),
+    );
+    target.getShin().setDirection(localDirection);
+  }
+  private toLocalDirection(
+    direction: THREE.Vector3,
+    parent: THREE.Object3D,
+  ): THREE.Vector3 {
+    const parentWorldQuat = new THREE.Quaternion();
 
-private updateShin(source: LegPose, target: Leg): void {
-    const lowerDirection = new THREE.Vector3()
-        .subVectors(source.ankle, source.knee)
-        .normalize();
+    parent.getWorldQuaternion(parentWorldQuat);
 
-    target.getShine().setDirection(lowerDirection);
-}
-
-private updateForearm(source: ArmPose, target: Arm): void {
-    const lowerDirection = new THREE.Vector3()
-        .subVectors(source.wrist, source.elbow)
-        .normalize();
-
-    target.getForearm().setDirection(lowerDirection);
-}
+    return direction
+      .clone()
+      .applyQuaternion(parentWorldQuat.invert())
+      .normalize();
+  }
 }
