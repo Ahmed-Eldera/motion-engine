@@ -21,4 +21,7 @@ export class Renderer {
   public render(scene: THREE.Scene, camera: THREE.Camera): void {
     this.renderer.render(scene, camera);
   }
+  public getDomElement(): HTMLCanvasElement {
+    return this.renderer.domElement;
+}
 }

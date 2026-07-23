@@ -26,8 +26,7 @@ export class Arm extends GameObject {
     // Elbow -> Wrist
     this.forearm.attach(this.hand);
     super.setRoot(this.upperArm.getStartJoint());
-    this.forearm.getRoot().rotation.z = -Math.PI / 2;
-this.hand.getRoot().rotation.z = -Math.PI / 2;
+
   }
 
   public getUpperArm(): Bone {
@@ -42,8 +41,21 @@ this.hand.getRoot().rotation.z = -Math.PI / 2;
     return this.hand;
   }
   public moveUpperArm(x: number,y: number,z: number): void {
-    this.upperArm.getStartJoint().rotation.x += x;
-    this.upperArm.getStartJoint().rotation.y += y;
-    this.upperArm.getStartJoint().rotation.z += z;
+    this.upperArm.move(x,y,z);
+  }
+    public moveForearm(x: number,y: number,z: number): void {
+    this.forearm.move(x,y,z);
+  }
+    public moveHand(x: number,y: number,z: number): void {
+    this.hand.move(x,y,z);
+  }
+  public setUpperArm(x: number,y: number,z: number): void {
+    this.upperArm.set(x,y,z);
+  }
+    public setForearm(x: number,y: number,z: number): void {
+    this.forearm.set(x,y,z);
+  }
+    public setHand(x: number,y: number,z: number): void {
+    this.hand.set(x,y,z);
   }
 }

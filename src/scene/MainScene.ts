@@ -1,12 +1,12 @@
 import * as THREE from "three";
 import { StickFigure } from "../assets/StickFigure";
-import { Bone } from "../assets/Bone";
-import { Arm } from "../assets/Arm";
 import type { GameObject } from "../assets/GameObject";
-
+import { SkeletonRetargeter } from "../animation/SkeletonRetargeter";
+import type { Pose } from "../animation/Pose";
 export class MainScene {
   private scene: THREE.Scene;
   private figure: GameObject;
+  private retargeter: SkeletonRetargeter = new SkeletonRetargeter();
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -18,7 +18,12 @@ export class MainScene {
     const material = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
     });
+    const grid = new THREE.GridHelper(
+      10, // size
+      10, // divisions
+    );
 
+    this.scene.add(grid);
     // this.figure = new Arm(material);
     // this.figure = new Bone(2, 0.2, material);
     this.figure = new StickFigure(material);
@@ -30,13 +35,38 @@ export class MainScene {
     this.scene.add(axes);
     this.figure.getRoot().position.set(0, 0, 0);
     this.figure.getRoot().rotation.y = 1;
-    (this.figure as StickFigure).getRightArm().moveUpperArm(0.2, 0.3, 0.7);
   }
 
   public getScene(): THREE.Scene {
     return this.scene;
   }
   public update() {
-    // this.figure.update(0.01);
+const pose: Pose = {
+    leftArm: {
+        shoulder: new THREE.Vector3(-0.5, 2, 0),
+        elbow:    new THREE.Vector3(-1.5, 2, 0),
+        wrist:    new THREE.Vector3(-2.5, 2, 0)
+    },
+
+    rightArm: {
+        shoulder: new THREE.Vector3(0.5, 2, 0),
+        elbow:    new THREE.Vector3(1.5, 2, 0),
+        wrist:    new THREE.Vector3(2.5, 2, 0)
+    },
+
+    leftLeg: {
+        hip:   new THREE.Vector3(-0.4, 0, 0),
+        knee:  new THREE.Vector3(-0.4, -1.2, -1),
+        ankle: new THREE.Vector3(-0.4, -2.4, 0)
+    },
+
+    rightLeg: {
+        hip:   new THREE.Vector3(0.4, 0, 0),
+        knee:  new THREE.Vector3(0.4, -1.2, 1),
+        ankle: new THREE.Vector3(0.4, -2.4, 0)
+    }
+};
+
+    this.retargeter.applyPose(pose, this.figure as StickFigure);
   }
 }
