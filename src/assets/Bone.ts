@@ -42,4 +42,14 @@ export class Bone extends GameObject {
   public attach(child: Bone): void {
     this.endJoint.add(child.getStartJoint());
   }
+    public move(x: number,y: number,z: number): void {
+    this.startJoint.rotation.x += x;
+    this.startJoint.rotation.y += y;
+    this.startJoint.rotation.z += z;
+  }
+    public set(x: number,y: number,z: number): void {
+    this.startJoint.rotation.x = x;
+    this.startJoint.rotation.y = y;
+    this.startJoint.rotation.z = z;
+  }
 }

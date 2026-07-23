@@ -30,13 +30,16 @@ export class MainScene {
     this.scene.add(axes);
     this.figure.getRoot().position.set(0, 0, 0);
     this.figure.getRoot().rotation.y = 1;
-    (this.figure as StickFigure).getRightArm().moveUpperArm(0.2, 0.3, 0.7);
+
   }
 
   public getScene(): THREE.Scene {
     return this.scene;
   }
   public update() {
-    // this.figure.update(0.01);
+    (this.figure as StickFigure).getRightArm().moveUpperArm(0.02, 0.03, 0.07);
+        (this.figure as StickFigure).getLeftArm().moveUpperArm(0.02, 0.03, 0.07);
+            (this.figure as StickFigure).getRightArm().moveForearm(0.02, 0.03, 0.07);
+        (this.figure as StickFigure).getLeftArm().moveForearm(0.02, 0.03, 0.07);
   }
 }

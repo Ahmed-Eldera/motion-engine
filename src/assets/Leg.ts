@@ -32,11 +32,29 @@ export class Leg extends GameObject {
     return this.thigh;
   }
 
-  public getForearm(): Bone {
+  public getShine(): Bone {
     return this.shin;
   }
 
-  public getHand(): Bone {
+  public getFoot(): Bone {
     return this.foot;
   }
+    public moveThigh(x: number,y: number,z: number): void {
+      this.thigh.move(x,y,z);
+    }
+    public moveShin(x: number,y: number,z: number): void {
+      this.shin.move(x,y,z);
+    }
+    public moveFoot(x: number,y: number,z: number): void {
+      this.foot.move(x,y,z);
+    }
+    public setThigh(x: number,y: number,z: number): void {
+        this.thigh.set(x,y,z);
+    }
+    public setShin(x: number,y: number,z: number): void {
+        this.shin.set(x,y,z);
+    }
+    public setFoot(x: number,y: number,z: number): void {
+        this.foot.set(x,y,z);
+    }
 }
