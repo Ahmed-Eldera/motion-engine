@@ -1,9 +1,6 @@
 import * as THREE from "three";
 import { StickFigure } from "../assets/StickFigure";
-import { Bone } from "../assets/Bone";
-import { Arm } from "../assets/Arm";
 import type { GameObject } from "../assets/GameObject";
-
 export class MainScene {
   private scene: THREE.Scene;
   private figure: GameObject;
@@ -18,7 +15,12 @@ export class MainScene {
     const material = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
     });
+    const grid = new THREE.GridHelper(
+      10, // size
+      10, // divisions
+    );
 
+    this.scene.add(grid);
     // this.figure = new Arm(material);
     // this.figure = new Bone(2, 0.2, material);
     this.figure = new StickFigure(material);
@@ -30,7 +32,6 @@ export class MainScene {
     this.scene.add(axes);
     this.figure.getRoot().position.set(0, 0, 0);
     this.figure.getRoot().rotation.y = 1;
-
   }
 
   public getScene(): THREE.Scene {
@@ -38,8 +39,8 @@ export class MainScene {
   }
   public update() {
     (this.figure as StickFigure).getRightArm().moveUpperArm(0.02, 0.03, 0.07);
-        (this.figure as StickFigure).getLeftArm().moveUpperArm(0.02, 0.03, 0.07);
-            (this.figure as StickFigure).getRightArm().moveForearm(0.02, 0.03, 0.07);
-        (this.figure as StickFigure).getLeftArm().moveForearm(0.02, 0.03, 0.07);
+    (this.figure as StickFigure).getLeftArm().moveUpperArm(0.02, 0.03, 0.07);
+    (this.figure as StickFigure).getRightArm().moveForearm(0.02, 0.03, 0.07);
+    (this.figure as StickFigure).getLeftArm().moveForearm(0.02, 0.03, 0.07);
   }
 }

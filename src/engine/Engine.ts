@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { Renderer } from "../rendering/Renderer";
 import { MainScene } from "../scene/MainScene";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export class Engine {
   private renderer: Renderer;
@@ -9,7 +10,7 @@ export class Engine {
   private x: number;
   private y: number;
   private z: number;
-
+private controls: OrbitControls;
   constructor() {
     this.renderer = new Renderer();
 
@@ -26,6 +27,13 @@ export class Engine {
     this.camera.lookAt(0, 0, 0);
 
     this.scene = new MainScene();
+        this.controls = new OrbitControls(
+        this.camera,
+        this.renderer.getDomElement()
+    );
+
+    this.controls.target.set(0, 1, 0);
+    this.controls.enableDamping = true;
   }
 
 public start(): void {
@@ -33,7 +41,12 @@ public start(): void {
     const animate = () => {
 
         this.scene.update();
+        this.controls.update();
 
+        this.renderer.render(
+            this.scene.getScene(),
+            this.camera
+        );
         this.renderer.render(
             this.scene.getScene(),
             this.camera
