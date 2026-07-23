@@ -1,9 +1,12 @@
 import * as THREE from "three";
 import { StickFigure } from "../assets/StickFigure";
 import type { GameObject } from "../assets/GameObject";
+import { SkeletonRetargeter } from "../animation/SkeletonRetargeter";
+import type { Pose } from "../animation/Pose";
 export class MainScene {
   private scene: THREE.Scene;
   private figure: GameObject;
+  private retargeter: SkeletonRetargeter = new SkeletonRetargeter();
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -38,9 +41,32 @@ export class MainScene {
     return this.scene;
   }
   public update() {
-    (this.figure as StickFigure).getRightArm().moveUpperArm(0.02, 0.03, 0.07);
-    (this.figure as StickFigure).getLeftArm().moveUpperArm(0.02, 0.03, 0.07);
-    (this.figure as StickFigure).getRightArm().moveForearm(0.02, 0.03, 0.07);
-    (this.figure as StickFigure).getLeftArm().moveForearm(0.02, 0.03, 0.07);
+    const pose: Pose = {
+      leftArm: {
+        shoulder: new THREE.Vector3(-0.5, 2, 0),
+        elbow: new THREE.Vector3(-1.2, 1.3, 0),
+        wrist: new THREE.Vector3(-1.8, 0.8, 0),
+      },
+
+      rightArm: {
+        shoulder: new THREE.Vector3(0.5, 2, 0),
+        elbow: new THREE.Vector3(1.2, 1.3, 0),
+        wrist: new THREE.Vector3(1.8, 0.8, 0),
+      },
+
+      leftLeg: {
+        hip: new THREE.Vector3(-0.3, 0, 0),
+        knee: new THREE.Vector3(-0.3, -1.0, -1),
+        ankle: new THREE.Vector3(-0.3, 0, 0),
+      },
+
+      rightLeg: {
+        hip: new THREE.Vector3(0.3, 0, 0),
+        knee: new THREE.Vector3(0.3, -1.2, 1),
+        ankle: new THREE.Vector3(0.3, -2.2, 0),
+      },
+    };
+
+    this.retargeter.applyPose(pose, this.figure as StickFigure);
   }
 }

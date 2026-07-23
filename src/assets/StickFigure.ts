@@ -52,14 +52,10 @@ export class StickFigure extends GameObject {
 
     this.spine.getChest().add(this.rightArm.getRoot());
 
-    this.leftArm.getRoot().rotation.z = Math.PI / 2;
-    this.rightArm.getRoot().rotation.z = -Math.PI / 2;
-
     this.spine.getHip().add(this.leftLeg.getRoot());
 
     this.spine.getHip().add(this.rightLeg.getRoot());
-    this.leftLeg.getRoot().rotation.z = 0.2;
-    this.rightLeg.getRoot().rotation.z = -0.2;
+
 
     super.setRoot(this.spine.getRoot());
   }

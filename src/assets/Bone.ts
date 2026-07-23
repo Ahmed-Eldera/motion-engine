@@ -52,4 +52,17 @@ export class Bone extends GameObject {
     this.startJoint.rotation.y = y;
     this.startJoint.rotation.z = z;
   }
+private readonly localAxis = new THREE.Vector3(0, -1, 0);
+
+public setDirection(direction: THREE.Vector3): void {
+
+    const q = new THREE.Quaternion();
+
+    q.setFromUnitVectors(
+        this.localAxis,
+        direction.clone().normalize()
+    );
+
+    this.startJoint.quaternion.copy(q);
+}
 }
