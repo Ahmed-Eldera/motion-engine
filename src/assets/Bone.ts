@@ -65,4 +65,7 @@ public setDirection(direction: THREE.Vector3): void {
 
     this.startJoint.quaternion.copy(q);
 }
+ public changeMaterial(material: THREE.Material): void {
+    this.mesh.material = material;
+}
 }

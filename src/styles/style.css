@@ -10,3 +10,60 @@ body,
 canvas {
     display: block;
 }
+
+#coordinates-display {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #00ff00;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    z-index: 1000;
+    line-height: 1.4;
+}
+
+#coordinates-display h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #00ff00;
+    border-bottom: 1px solid #00ff00;
+    padding-bottom: 6px;
+}
+
+#coordinates-display .limb {
+    margin: 6px 0;
+}
+
+#coordinates-display .limb-name {
+    font-weight: bold;
+    color: #ffff00;
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+#coordinates-display .joint {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px 0;
+    padding-left: 10px;
+    font-size: 11px;
+}
+
+#coordinates-display .joint-label {
+    color: #00ff00;
+    min-width: 50px;
+}
+
+#coordinates-display .coords {
+    color: #ffffff;
+    font-weight: bold;
+}

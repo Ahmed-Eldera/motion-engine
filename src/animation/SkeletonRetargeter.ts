@@ -8,19 +8,19 @@ export class SkeletonRetargeter {
   public applyPose(pose: Pose, skeleton: StickFigure): void {
     this.updateUpperArm(pose.leftArm, skeleton.getLeftArm());
 
-    this.updateUpperArm(pose.rightArm, skeleton.getRightArm());
+    // this.updateUpperArm(pose.rightArm, skeleton.getRightArm());
 
-    this.updateThigh(pose.leftLeg, skeleton.getLeftLeg());
+    // this.updateThigh(pose.leftLeg, skeleton.getLeftLeg());
 
-    this.updateThigh(pose.rightLeg, skeleton.getRightLeg());
+    // this.updateThigh(pose.rightLeg, skeleton.getRightLeg());
 
-    this.updateShin(pose.leftLeg, skeleton.getLeftLeg());
+    // this.updateShin(pose.leftLeg, skeleton.getLeftLeg());
 
-    this.updateShin(pose.rightLeg, skeleton.getRightLeg());
+    // this.updateShin(pose.rightLeg, skeleton.getRightLeg());
 
     this.updateForearm(pose.leftArm, skeleton.getLeftArm());
 
-    this.updateForearm(pose.rightArm, skeleton.getRightArm());
+    // this.updateForearm(pose.rightArm, skeleton.getRightArm());
   }
 
   private updateUpperArm(source: ArmPose, target: Arm): void {
@@ -30,20 +30,34 @@ export class SkeletonRetargeter {
 
     const localDirection = this.toLocalDirection(
       worldDirection,
-      target.getUpperArm().getEndJoint(),
+      target.getUpperArm().getStartJoint().parent,
     );
+    // console.log("localDirection", localDirection);
+    // console.log("worldDirection", worldDirection);
     target.getUpperArm().setDirection(localDirection);
   }
   private updateForearm(source: ArmPose, target: Arm): void {
     const worldDirection = new THREE.Vector3()
       .subVectors(source.wrist, source.elbow)
       .normalize();
-          const localDirection = this.toLocalDirection(
+    const localDirection = this.toLocalDirection(
       worldDirection,
-      target.getForearm().getEndJoint(),
+      target.getForearm().getStartJoint().parent,
     );
 
     target.getForearm().setDirection(localDirection);
+    const upperDirection = new THREE.Vector3()
+    .subVectors(source.elbow, source.shoulder)
+    .normalize();
+
+const forearmDirection = new THREE.Vector3()
+    .subVectors(source.wrist, source.elbow)
+    .normalize();
+    const elbowAngle = forearmDirection.angleTo(upperDirection);
+
+console.log(
+    THREE.MathUtils.radToDeg(elbowAngle)
+);
   }
 
   private updateThigh(source: LegPose, target: Leg): void {
@@ -56,7 +70,6 @@ export class SkeletonRetargeter {
     );
     target.getThigh().setDirection(localDirection);
   }
-
 
   private updateShin(source: LegPose, target: Leg): void {
     const worldDirection = new THREE.Vector3()
@@ -73,12 +86,10 @@ export class SkeletonRetargeter {
     parent: THREE.Object3D,
   ): THREE.Vector3 {
     const parentWorldQuat = new THREE.Quaternion();
-
+    
+    parent.updateMatrixWorld(true);
     parent.getWorldQuaternion(parentWorldQuat);
-
-    return direction
-      .clone()
-      .applyQuaternion(parentWorldQuat.invert())
-      .normalize();
+    // console.log(parentWorldQuat.toArray());
+    return direction.clone().applyQuaternion(parentWorldQuat.invert()).normalize();
   }
 }
