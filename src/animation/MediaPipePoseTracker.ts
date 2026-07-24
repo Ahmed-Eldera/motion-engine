@@ -57,27 +57,27 @@ export class MediaPipePoseTracker implements PoseTracker {
         const pose = {
 
             leftArm: {
-                shoulder: this.vec(lm[11]),
-                elbow: this.vec(lm[13]),
-                wrist: this.vec(lm[15])
+                parentJoint: this.vec(lm[11]),
+                middleJoint: this.vec(lm[13]),
+                endJoint: this.vec(lm[15])
             },
 
             rightArm: {
-                shoulder: this.vec(lm[12]),
-                elbow: this.vec(lm[14]),
-                wrist: this.vec(lm[16])
+                parentJoint: this.vec(lm[12]),
+                middleJoint: this.vec(lm[14]),
+                endJoint: this.vec(lm[16])
             },
 
             leftLeg: {
-                hip: this.vec(lm[23]),
-                knee: this.vec(lm[25]),
-                ankle: this.vec(lm[27])
+                parentJoint: this.vec(lm[23]),
+                middleJoint: this.vec(lm[25]),
+                endJoint: this.vec(lm[27])
             },
 
             rightLeg: {
-                hip: this.vec(lm[24]),
-                knee: this.vec(lm[26]),
-                ankle: this.vec(lm[28])
+                parentJoint: this.vec(lm[24]),
+                middleJoint: this.vec(lm[26]),
+                endJoint: this.vec(lm[28])
             }
         };
         
@@ -96,60 +96,60 @@ export class MediaPipePoseTracker implements PoseTracker {
                 <div class="limb-name">LEFT ARM</div>
                 <div class="joint">
                     <span class="joint-label">Shoulder:</span>
-                    <span class="coords">(${pose.leftArm.shoulder.x.toFixed(3)}, ${pose.leftArm.shoulder.y.toFixed(3)}, ${pose.leftArm.shoulder.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.leftArm.parentJoint.x.toFixed(3)}, ${pose.leftArm.parentJoint.y.toFixed(3)}, ${pose.leftArm.parentJoint.z.toFixed(3)})</span>
                 </div>
                 <div class="joint">
                     <span class="joint-label">Elbow:</span>
-                    <span class="coords">(${pose.leftArm.elbow.x.toFixed(3)}, ${pose.leftArm.elbow.y.toFixed(3)}, ${pose.leftArm.elbow.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.leftArm.middleJoint.x.toFixed(3)}, ${pose.leftArm.middleJoint.y.toFixed(3)}, ${pose.leftArm.middleJoint.z.toFixed(3)})</span>
                 </div>
                 <div class="joint">
                     <span class="joint-label">Wrist:</span>
-                    <span class="coords">(${pose.leftArm.wrist.x.toFixed(3)}, ${pose.leftArm.wrist.y.toFixed(3)}, ${pose.leftArm.wrist.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.leftArm.endJoint.x.toFixed(3)}, ${pose.leftArm.endJoint.y.toFixed(3)}, ${pose.leftArm.endJoint.z.toFixed(3)})</span>
                 </div>
             </div>
             <div class="limb">
                 <div class="limb-name">RIGHT ARM</div>
                 <div class="joint">
                     <span class="joint-label">Shoulder:</span>
-                    <span class="coords">(${pose.rightArm.shoulder.x.toFixed(3)}, ${pose.rightArm.shoulder.y.toFixed(3)}, ${pose.rightArm.shoulder.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.rightArm.parentJoint.x.toFixed(3)}, ${pose.rightArm.parentJoint.y.toFixed(3)}, ${pose.rightArm.parentJoint.z.toFixed(3)})</span>
                 </div>
                 <div class="joint">
                     <span class="joint-label">Elbow:</span>
-                    <span class="coords">(${pose.rightArm.elbow.x.toFixed(3)}, ${pose.rightArm.elbow.y.toFixed(3)}, ${pose.rightArm.elbow.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.rightArm.middleJoint.x.toFixed(3)}, ${pose.rightArm.middleJoint.y.toFixed(3)}, ${pose.rightArm.middleJoint.z.toFixed(3)})</span>
                 </div>
                 <div class="joint">
                     <span class="joint-label">Wrist:</span>
-                    <span class="coords">(${pose.rightArm.wrist.x.toFixed(3)}, ${pose.rightArm.wrist.y.toFixed(3)}, ${pose.rightArm.wrist.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.rightArm.endJoint.x.toFixed(3)}, ${pose.rightArm.endJoint.y.toFixed(3)}, ${pose.rightArm.endJoint.z.toFixed(3)})</span>
                 </div>
             </div>
             <div class="limb">
                 <div class="limb-name">LEFT LEG</div>
                 <div class="joint">
                     <span class="joint-label">Hip:</span>
-                    <span class="coords">(${pose.leftLeg.hip.x.toFixed(3)}, ${pose.leftLeg.hip.y.toFixed(3)}, ${pose.leftLeg.hip.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.leftLeg.parentJoint.x.toFixed(3)}, ${pose.leftLeg.parentJoint.y.toFixed(3)}, ${pose.leftLeg.parentJoint.z.toFixed(3)})</span>
                 </div>
                 <div class="joint">
                     <span class="joint-label">Knee:</span>
-                    <span class="coords">(${pose.leftLeg.knee.x.toFixed(3)}, ${pose.leftLeg.knee.y.toFixed(3)}, ${pose.leftLeg.knee.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.leftLeg.middleJoint.x.toFixed(3)}, ${pose.leftLeg.middleJoint.y.toFixed(3)}, ${pose.leftLeg.middleJoint.z.toFixed(3)})</span>
                 </div>
                 <div class="joint">
                     <span class="joint-label">Ankle:</span>
-                    <span class="coords">(${pose.leftLeg.ankle.x.toFixed(3)}, ${pose.leftLeg.ankle.y.toFixed(3)}, ${pose.leftLeg.ankle.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.leftLeg.endJoint.x.toFixed(3)}, ${pose.leftLeg.endJoint.y.toFixed(3)}, ${pose.leftLeg.endJoint.z.toFixed(3)})</span>
                 </div>
             </div>
             <div class="limb">
                 <div class="limb-name">RIGHT LEG</div>
                 <div class="joint">
                     <span class="joint-label">Hip:</span>
-                    <span class="coords">(${pose.rightLeg.hip.x.toFixed(3)}, ${pose.rightLeg.hip.y.toFixed(3)}, ${pose.rightLeg.hip.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.rightLeg.parentJoint.x.toFixed(3)}, ${pose.rightLeg.parentJoint.y.toFixed(3)}, ${pose.rightLeg.parentJoint.z.toFixed(3)})</span>
                 </div>
                 <div class="joint">
                     <span class="joint-label">Knee:</span>
-                    <span class="coords">(${pose.rightLeg.knee.x.toFixed(3)}, ${pose.rightLeg.knee.y.toFixed(3)}, ${pose.rightLeg.knee.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.rightLeg.middleJoint.x.toFixed(3)}, ${pose.rightLeg.middleJoint.y.toFixed(3)}, ${pose.rightLeg.middleJoint.z.toFixed(3)})</span>
                 </div>
                 <div class="joint">
                     <span class="joint-label">Ankle:</span>
-                    <span class="coords">(${pose.rightLeg.ankle.x.toFixed(3)}, ${pose.rightLeg.ankle.y.toFixed(3)}, ${pose.rightLeg.ankle.z.toFixed(3)})</span>
+                    <span class="coords">(${pose.rightLeg.endJoint.x.toFixed(3)}, ${pose.rightLeg.endJoint.y.toFixed(3)}, ${pose.rightLeg.endJoint.z.toFixed(3)})</span>
                 </div>
             </div>
         `;

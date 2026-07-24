@@ -1,19 +1,14 @@
 import * as THREE from "three";
 export interface Pose {
 
-    leftArm: ArmPose;
-    rightArm: ArmPose;
+    leftArm: LimbPose;
+    rightArm: LimbPose;
 
-    leftLeg: LegPose;
-    rightLeg: LegPose;
+    leftLeg: LimbPose;
+    rightLeg: LimbPose;
 }
-export interface ArmPose {
-    shoulder: THREE.Vector3;
-    elbow: THREE.Vector3;
-    wrist: THREE.Vector3;
-}
-export interface LegPose {
-    hip: THREE.Vector3;
-    knee: THREE.Vector3;
-    ankle: THREE.Vector3;
+export interface LimbPose {
+    parentJoint: THREE.Vector3;
+    middleJoint: THREE.Vector3;
+    endJoint: THREE.Vector3;
 }
