@@ -7,9 +7,6 @@ export class Engine {
   private renderer: Renderer;
   private camera: THREE.PerspectiveCamera;
   private scene: MainScene;
-  private x: number;
-  private y: number;
-  private z: number;
 private controls: OrbitControls;
   constructor() {
     this.renderer = new Renderer();
@@ -20,10 +17,8 @@ private controls: OrbitControls;
       0.1,
       1000,
     );
-    this.x = 5;
-    this.y = 5;
-    this.z = 5;
-    this.camera.position.set(this.x, this.y, this.z);
+
+    this.camera.position.set(5, 5, 5);
     this.camera.lookAt(0, 0, 0);
 
     this.scene = new MainScene();
