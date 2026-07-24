@@ -29,7 +29,7 @@ export class SkeletonRetargeter {
 
     const localDirection = this.toLocalDirection(
       worldDirection,
-      target.parentBone.getEndJoint(),
+      target.parentBone.getStartJoint().parent,
     );
     target.parentBone.setDirection(localDirection);
   }
