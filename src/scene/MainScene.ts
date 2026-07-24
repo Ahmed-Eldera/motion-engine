@@ -9,32 +9,22 @@ export class MainScene {
   private retargeter: SkeletonRetargeter = new SkeletonRetargeter();
 
   constructor() {
+    const material = new THREE.MeshBasicMaterial({color: 0x00ff00,});
+    
     this.scene = new THREE.Scene();
-
     this.scene.background = new THREE.Color(0x202020);
-
-    const geometry = new THREE.BoxGeometry();
-
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
-    });
-    const grid = new THREE.GridHelper(
-      10, // size
-      10, // divisions
-    );
-
+    
+    const grid = new THREE.GridHelper(10,10);
     this.scene.add(grid);
-    // this.figure = new Arm(material);
-    // this.figure = new Bone(2, 0.2, material);
+    
     this.figure = new StickFigure(material);
-
-    this.scene.add(this.figure.getRoot());
-
-    const axes = new THREE.AxesHelper(5);
-
-    this.scene.add(axes);
     this.figure.getRoot().position.set(0, 0, 0);
     this.figure.getRoot().rotation.y = 1;
+    this.scene.add(this.figure.getRoot());
+    
+    const axes = new THREE.AxesHelper(5);
+    this.scene.add(axes);
+    
   }
 
   public getScene(): THREE.Scene {
