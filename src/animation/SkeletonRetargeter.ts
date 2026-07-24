@@ -1,52 +1,49 @@
 import * as THREE from "three";
-import type { Arm } from "../assets/Arm";
+import type { Limb } from "../assets/Limb";
 import type { StickFigure } from "../assets/StickFigure";
 import type { Pose, ArmPose, LegPose } from "./Pose";
-import type { Leg } from "../assets/Leg";
 
 export class SkeletonRetargeter {
   public applyPose(pose: Pose, skeleton: StickFigure): void {
-    this.updateUpperArm(pose.leftArm, skeleton.getLeftArm());
+    this.updateUpperArm(pose.leftArm, skeleton.leftArm);
 
-    // this.updateUpperArm(pose.rightArm, skeleton.getRightArm());
+    this.updateUpperArm(pose.rightArm, skeleton.rightArm);
 
-    // this.updateThigh(pose.leftLeg, skeleton.getLeftLeg());
+    // this.updateThigh(pose.leftLeg, skeleton.leftLeg);
 
-    // this.updateThigh(pose.rightLeg, skeleton.getRightLeg());
+    // this.updateThigh(pose.rightLeg, skeleton.rightLeg);
 
-    // this.updateShin(pose.leftLeg, skeleton.getLeftLeg());
+    // this.updateShin(pose.leftLeg, skeleton.leftLeg);
 
-    // this.updateShin(pose.rightLeg, skeleton.getRightLeg());
+    // this.updateShin(pose.rightLeg, skeleton.rightLeg);
 
-    this.updateForearm(pose.leftArm, skeleton.getLeftArm());
+    this.updateForearm(pose.leftArm, skeleton.leftArm);
 
-    // this.updateForearm(pose.rightArm, skeleton.getRightArm());
+    // this.updateForearm(pose.rightArm, skeleton.rightArm);
   }
 
-  private updateUpperArm(source: ArmPose, target: Arm): void {
+  private updateUpperArm(source: ArmPose, target: Limb): void {
     const worldDirection = new THREE.Vector3()
       .subVectors(source.elbow, source.shoulder)
       .normalize();
 
     const localDirection = this.toLocalDirection(
       worldDirection,
-      target.getUpperArm().getStartJoint().parent,
+      target.parentBone.getEndJoint(),
     );
-    // console.log("localDirection", localDirection);
-    // console.log("worldDirection", worldDirection);
-    target.getUpperArm().setDirection(localDirection);
+    target.parentBone.setDirection(localDirection);
   }
-  private updateForearm(source: ArmPose, target: Arm): void {
+  private updateForearm(source: ArmPose, target: Limb): void {
     const worldDirection = new THREE.Vector3()
       .subVectors(source.wrist, source.elbow)
       .normalize();
     const localDirection = this.toLocalDirection(
       worldDirection,
-      target.getForearm().getStartJoint().parent,
+      target.middleBone.getStartJoint().parent,
     );
 
-    target.getForearm().setDirection(localDirection);
-    const upperDirection = new THREE.Vector3()
+    target.middleBone.setDirection(localDirection);
+        const upperDirection = new THREE.Vector3()
     .subVectors(source.elbow, source.shoulder)
     .normalize();
 
@@ -60,26 +57,27 @@ console.log(
 );
   }
 
-  private updateThigh(source: LegPose, target: Leg): void {
+  private updateThigh(source: LegPose, target: Limb): void {
     const worldDirection = new THREE.Vector3()
       .subVectors(source.knee, source.hip)
       .normalize();
     const localDirection = this.toLocalDirection(
       worldDirection,
-      target.getThigh().getEndJoint(),
+      target.parentBone.getEndJoint(),
     );
-    target.getThigh().setDirection(localDirection);
+    target.parentBone.setDirection(localDirection);
   }
 
-  private updateShin(source: LegPose, target: Leg): void {
+
+  private updateShin(source: LegPose, target: Limb): void {
     const worldDirection = new THREE.Vector3()
       .subVectors(source.ankle, source.knee)
       .normalize();
     const localDirection = this.toLocalDirection(
       worldDirection,
-      target.getShin().getEndJoint(),
+      target.middleBone.getEndJoint(),
     );
-    target.getShin().setDirection(localDirection);
+    target.middleBone.setDirection(localDirection);
   }
   private toLocalDirection(
     direction: THREE.Vector3,
