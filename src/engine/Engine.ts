@@ -5,13 +5,14 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Camera } from "../camera/Camera";
 import { SkeletonRetargeter } from "../animation/SkeletonRetargeter";
 import { MediaPipePoseTracker } from "../animation/MediaPipePoseTracker";
+import { ArmCalibrator } from "../animation/ArmCalibrator";
 
 export class Engine {
   private renderer: Renderer;
   private camera: THREE.PerspectiveCamera;
   private scene: MainScene;
   private controls: OrbitControls;
-
+  private calibrator = new ArmCalibrator();
   private webcam: Camera;
   private tracker!: MediaPipePoseTracker;
   private retargeter: SkeletonRetargeter;
@@ -47,40 +48,39 @@ export class Engine {
     await this.webcam.start();
 
     this.tracker = new MediaPipePoseTracker(this.webcam.getVideo());
-      console.log("aho");
-
+    console.log("aho");
     await this.tracker.initialize();
-      console.log("aho");
-let lastUpdate = 0;
+    console.log("aho");
+    this.calibrator.start();
+    window.addEventListener("click", () => {
+      this.calibrator.beginCapture();
+    });
+    let lastUpdate = 0;
 
-const animate = () => {
+    const animate = () => {
+      const now = performance.now();
 
-    const now = performance.now();
-
-    if (now - lastUpdate > 20) {
-
+      if (now - lastUpdate > 20) {
         lastUpdate = now;
 
         const pose = this.tracker.update();
 
         if (pose) {
-            this.retargeter.applyPose(
-                pose,
-                this.scene.getFigure()
-            );
+          this.calibrator.update(pose);
+
+          if (this.calibrator.isCalibrated()) {
+            this.retargeter.applyPose(pose, this.scene.getFigure(),this.calibrator);
+          }
         }
-    }
+      }
 
-    this.controls.update();
+      this.controls.update();
 
-    this.renderer.render(
-        this.scene.getScene(),
-        this.camera
-    );
+      this.renderer.render(this.scene.getScene(), this.camera);
 
-    requestAnimationFrame(animate);
-};
+      requestAnimationFrame(animate);
+    };
 
-animate();
+    animate();
   }
 }
