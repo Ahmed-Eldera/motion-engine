@@ -24,9 +24,9 @@ export class SkeletonRetargeter {
 
     // this.updateShin(pose.rightLeg, skeleton.rightLeg);
 
-  //   this.updateForearm(pose.leftArm, skeleton.leftArm);
+    this.updateForearm(pose.leftArm, skeleton.leftArm, this.calibrator.getForearmLength());
 
-  //   this.updateForearm(pose.rightArm, skeleton.rightArm);
+    this.updateForearm(pose.rightArm, skeleton.rightArm, this.calibrator.getForearmLength());
   }
 
 private updateUpperArm(source: LimbPose, target: Limb,mxln:number): void {
@@ -63,37 +63,37 @@ private updateUpperArm(source: LimbPose, target: Limb,mxln:number): void {
     target.parentBone.setDirection(localDirection);
 }
 
-  private updateForearm(source: LimbPose, target: Limb): void {
-    const worldDirection = new THREE.Vector3()
-      .subVectors(source.endJoint, source.middleJoint)
-      .normalize();
-    const localDirection = this.toLocalDirection(
-      worldDirection,
-      target.middleBone.getStartJoint().parent,
-    );
-    const currentLength = source.middleJoint.distanceTo(source.endJoint);
+  private updateForearm(source: LimbPose, target: Limb, mxln: number): void {
+    const dx = source.endJoint.x - source.middleJoint.x;
+    const dy = source.endJoint.y - source.middleJoint.y;
+
+    // Length visible in the image
+    const projectedLength = Math.sqrt(dx * dx + dy * dy);
+
+    // During calibration you'll replace this with the calibrated length
+    const maxLength = mxln;
 
     const ratio = THREE.MathUtils.clamp(
-      currentLength / this.calibrator.getForearmLength(),
-      0,
-      1,
+        projectedLength / maxLength,
+        0,
+        1
     );
-    console.log("ratio: " + ratio);
-    const forwardAngle = Math.acos(ratio);
 
-    worldDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), forwardAngle);
+    // Estimate forward movement
+    const estimatedZ = Math.sqrt(1 - ratio * ratio);
+
+    const worldDirection = new THREE.Vector3(
+        dx,
+        dy,
+        estimatedZ
+    ).normalize();
+
+    const localDirection = this.toLocalDirection(
+        worldDirection,
+        target.middleBone.getStartJoint().parent
+    );
+
     target.middleBone.setDirection(localDirection);
-    
-    const upperDirection = new THREE.Vector3()
-      .subVectors(source.middleJoint, source.parentJoint)
-      .normalize();
-
-    const forearmDirection = new THREE.Vector3()
-      .subVectors(source.endJoint, source.middleJoint)
-      .normalize();
-    const elbowAngle = forearmDirection.angleTo(upperDirection);
-
-    // console.log(THREE.MathUtils.radToDeg(elbowAngle));
   }
 
   private toLocalDirection(
