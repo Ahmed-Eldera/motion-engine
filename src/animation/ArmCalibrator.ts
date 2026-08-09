@@ -18,9 +18,15 @@ export class ArmCalibrator {
     private upperArmLength = 0;
     private forearmLength = 0;
 
+    private leftHandSize = 0;
+    private rightHandSize = 0;
+
+    private leftHandSizeSamples: number[] = [];
+    private rightHandSizeSamples: number[] = [];
+
     public start(): void {
         this.showMessage(
-            "Calibration: Extend your LEFT arm sideways and click when ready."
+            "Calibration: Extend your LEFT arm sideways and hold your left hand open toward the camera, then click when ready."
         );
     }
 
@@ -33,6 +39,8 @@ export class ArmCalibrator {
 
         this.upperSamples = [];
         this.forearmSamples = [];
+        this.leftHandSizeSamples = [];
+        this.rightHandSizeSamples = [];
 
         this.showMessage("Hold still...");
     }
@@ -55,11 +63,21 @@ export class ArmCalibrator {
         this.upperSamples.push(upper);
         this.forearmSamples.push(forearm);
 
+        if (pose.leftHandSize != null) {
+            this.leftHandSizeSamples.push(pose.leftHandSize);
+        }
+
+        if (pose.rightHandSize != null) {
+            this.rightHandSizeSamples.push(pose.rightHandSize);
+        }
+
         if (this.upperSamples.length < this.SAMPLE_COUNT)
             return;
 
         this.upperArmLength = this.average(this.upperSamples);
         this.forearmLength = this.average(this.forearmSamples);
+        this.leftHandSize = this.leftHandSizeSamples.length > 0 ? this.average(this.leftHandSizeSamples) : 0;
+        this.rightHandSize = this.rightHandSizeSamples.length > 0 ? this.average(this.rightHandSizeSamples) : 0;
 
         this.state = CalibrationState.DONE;
 
@@ -81,6 +99,19 @@ export class ArmCalibrator {
 
     public getForearmLength(): number {
         return this.forearmLength;
+    }
+
+    public getLeftHandSizeBaseline(): number {
+        return this.leftHandSize;
+    }
+
+    public getRightHandSizeBaseline(): number {
+        return this.rightHandSize;
+    }
+
+    public getHandSizeScale(hand: "left" | "right", currentSize: number): number {
+        const baseline = hand === "left" ? this.leftHandSize : this.rightHandSize;
+        return baseline > 0 ? currentSize / baseline : 1;
     }
 
     private showMessage(message: string): void {

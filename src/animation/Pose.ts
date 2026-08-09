@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { DepthEstimate } from "./DepthEstimator";
 export interface Pose {
 
     leftArm: LimbPose;
@@ -6,6 +7,11 @@ export interface Pose {
 
     leftLeg: LimbPose;
     rightLeg: LimbPose;
+
+    leftHandSize?: number;
+    rightHandSize?: number;
+
+    armDepth?: DepthEstimate;
 }
 export interface LimbPose {
     parentJoint: THREE.Vector3;

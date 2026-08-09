@@ -8,16 +8,34 @@ import * as THREE from "three";
 import  { PoseTracker } from "./PoseTracker";
 import type { Pose } from "./Pose";
 import { Camera } from "../camera/Camera";
+import { DepthVisualizer } from "../camera/DepthVisualizer";
+import { DepthEstimator } from "./DepthEstimator";
+import type { ArmCalibrator } from "./ArmCalibrator";
+import type { DepthSampler } from "./DepthEstimator";
+import { finiteOr } from "./sanitize";
 
 export class MediaPipePoseTracker extends PoseTracker {
 
     private detector!: PoseLandmarker;
+    private handDetector?: any;
     private readonly video: HTMLVideoElement;
     private readonly camera :Camera = Camera.getInstance();
+    private readonly depthVisualizer = new DepthVisualizer();
+    private readonly depthEstimator = new DepthEstimator();
+    private calibrator?: ArmCalibrator;
+    private depthSampler?: DepthSampler;
 
     constructor(video: HTMLVideoElement) {
         super();
         this.video = video;
+    }
+
+    public setCalibrator(calibrator: ArmCalibrator): void {
+        this.calibrator = calibrator;
+    }
+
+    public setDepthSampler(sampler: DepthSampler): void {
+        this.depthSampler = sampler;
     }
 
     public async initialize(): Promise<void> {
@@ -31,7 +49,8 @@ export class MediaPipePoseTracker extends PoseTracker {
                 vision,
                 {
                     baseOptions: {
-                        modelAssetPath: "/pose_landmarker_full.task"
+                        modelAssetPath: "/pose_landmarker_full.task",
+                        delegate: "GPU"
                     },
 
                     runningMode: "VIDEO",
@@ -39,6 +58,22 @@ export class MediaPipePoseTracker extends PoseTracker {
                     numPoses: 1
                 }
             );
+
+        try {
+            const handModule = await import("@mediapipe/tasks-vision");
+            const HandLandmarker = handModule.HandLandmarker;
+            this.handDetector = await HandLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: "/hand_landmarker.task",
+                    delegate: "GPU"
+                },
+                runningMode: "VIDEO",
+                numHands: 2
+            });
+        } catch (error) {
+            console.warn("HandLandmarker unavailable:", error);
+            this.handDetector = undefined;
+        }
     }
 
     public update(): Pose {
@@ -53,11 +88,35 @@ export class MediaPipePoseTracker extends PoseTracker {
             return null;
 
         const lm = result.landmarks[0];
-        lm.forEach((landmark) => {
-            landmark.z=0;
-        });
-        this.camera.drawLandmarks(result.landmarks[0]);
-        
+        let handLandmarks: Array<{ x: number; y: number }> = [];
+        let handSizes: { left?: number; right?: number } = {};
+        let hands: Array<{ landmarks: Array<{ x: number; y: number; z: number }>; label?: string }> = [];
+
+        if (this.handDetector) {
+            const handResult = this.handDetector.detectForVideo(
+                this.video,
+                performance.now()
+            );
+
+            if (handResult.landmarks?.length) {
+                handLandmarks = handResult.landmarks.flat();
+                handSizes = this.extractHandSizes(handResult);
+                hands = handResult.landmarks.map(
+                    (landmarks: Array<{ x: number; y: number; z: number }>, i: number) => ({
+                        landmarks,
+                        label: handResult.handedness?.[i]?.label
+                    })
+                );
+            }
+        }
+
+        this.camera.drawLandmarks([...lm, ...handLandmarks]);
+
+        const armDepth = this.depthEstimator.estimate(lm, hands, this.calibrator, this.depthSampler);
+        armDepth.aiStatus = this.depthSampler?.label;
+
+        this.depthVisualizer.draw(armDepth, this.depthSampler?.getDepthMap?.() ?? null);
+
         const pose = {
 
             leftArm: {
@@ -82,7 +141,11 @@ export class MediaPipePoseTracker extends PoseTracker {
                 parentJoint: this.vec(lm[24]),
                 middleJoint: this.vec(lm[26]),
                 endJoint: this.vec(lm[28])
-            }
+            },
+
+            leftHandSize: handSizes.left,
+            rightHandSize: handSizes.right,
+            armDepth
         };
         
         // Update on-screen display
@@ -102,9 +165,48 @@ export class MediaPipePoseTracker extends PoseTracker {
     ): THREE.Vector3 {
 
         return new THREE.Vector3(
-            landmark.x,
-            -landmark.y,
-            landmark.z
+            finiteOr(landmark.x),
+            -finiteOr(landmark.y),
+            0
         );
+    }
+
+    private extractHandSizes(handResult: any): { left?: number; right?: number } {
+        if (!handResult || !handResult.landmarks?.length)
+            return {};
+
+        const sizes: { left?: number; right?: number } = {};
+
+        for (let i = 0; i < handResult.landmarks.length; i++) {
+            const landmarks = handResult.landmarks[i];
+            const size = this.computeHandSize(landmarks);
+            const label = handResult.handedness?.[i]?.label;
+
+            if (label === "Left") {
+                sizes.left = size;
+            } else if (label === "Right") {
+                sizes.right = size;
+            }
+        }
+
+        return sizes;
+    }
+
+    private computeHandSize(
+        landmarks: Array<{ x: number; y: number; z?: number }>
+    ): number {
+        let minX = Number.POSITIVE_INFINITY;
+        let maxX = Number.NEGATIVE_INFINITY;
+        let minY = Number.POSITIVE_INFINITY;
+        let maxY = Number.NEGATIVE_INFINITY;
+
+        for (const landmark of landmarks) {
+            minX = Math.min(minX, landmark.x);
+            maxX = Math.max(maxX, landmark.x);
+            minY = Math.min(minY, landmark.y);
+            maxY = Math.max(maxY, landmark.y);
+        }
+
+        return Math.hypot(maxX - minX, maxY - minY);
     }
 }
