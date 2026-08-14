@@ -5,13 +5,9 @@ import {
 
 import * as THREE from "three";
 
-import  { PoseTracker } from "./PoseTracker";
+import { PoseTracker } from "./PoseTracker";
 import type { Pose } from "./Pose";
 import { Camera } from "../camera/Camera";
-import { DepthVisualizer } from "../camera/DepthVisualizer";
-import { DepthEstimator } from "./DepthEstimator";
-import type { ArmCalibrator } from "./ArmCalibrator";
-import type { DepthSampler } from "./DepthEstimator";
 import { finiteOr } from "./sanitize";
 
 export class MediaPipePoseTracker extends PoseTracker {
@@ -20,22 +16,10 @@ export class MediaPipePoseTracker extends PoseTracker {
     private handDetector?: any;
     private readonly video: HTMLVideoElement;
     private readonly camera :Camera = Camera.getInstance();
-    private readonly depthVisualizer = new DepthVisualizer();
-    private readonly depthEstimator = new DepthEstimator();
-    private calibrator?: ArmCalibrator;
-    private depthSampler?: DepthSampler;
 
     constructor(video: HTMLVideoElement) {
         super();
         this.video = video;
-    }
-
-    public setCalibrator(calibrator: ArmCalibrator): void {
-        this.calibrator = calibrator;
-    }
-
-    public setDepthSampler(sampler: DepthSampler): void {
-        this.depthSampler = sampler;
     }
 
     public async initialize(): Promise<void> {
@@ -90,7 +74,6 @@ export class MediaPipePoseTracker extends PoseTracker {
         const lm = result.landmarks[0];
         let handLandmarks: Array<{ x: number; y: number }> = [];
         let handSizes: { left?: number; right?: number } = {};
-        let hands: Array<{ landmarks: Array<{ x: number; y: number; z: number }>; label?: string }> = [];
 
         if (this.handDetector) {
             const handResult = this.handDetector.detectForVideo(
@@ -101,21 +84,10 @@ export class MediaPipePoseTracker extends PoseTracker {
             if (handResult.landmarks?.length) {
                 handLandmarks = handResult.landmarks.flat();
                 handSizes = this.extractHandSizes(handResult);
-                hands = handResult.landmarks.map(
-                    (landmarks: Array<{ x: number; y: number; z: number }>, i: number) => ({
-                        landmarks,
-                        label: handResult.handedness?.[i]?.label
-                    })
-                );
             }
         }
 
         this.camera.drawLandmarks([...lm, ...handLandmarks]);
-
-        const armDepth = this.depthEstimator.estimate(lm, hands, this.calibrator, this.depthSampler);
-        armDepth.aiStatus = this.depthSampler?.label;
-
-        this.depthVisualizer.draw(armDepth, this.depthSampler?.getDepthMap?.() ?? null);
 
         const pose = {
 
@@ -145,7 +117,6 @@ export class MediaPipePoseTracker extends PoseTracker {
 
             leftHandSize: handSizes.left,
             rightHandSize: handSizes.right,
-            armDepth
         };
         
         // Update on-screen display

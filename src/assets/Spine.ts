@@ -22,6 +22,11 @@ private rightHip = new THREE.Object3D();
 
     this.neck.attach(this.upperSpine);
     this.upperSpine.attach(this.lowerSpine);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3), material);
+    head.position.y = 0.3;
+    this.neck.getStartJoint().add(head);
+
 const shoulderWidth = 0.45;
 const hipWidth = 0.25;
 

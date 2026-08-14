@@ -13,7 +13,7 @@ export class SkeletonRetargeter {
   private prevLeftForeQuat: THREE.Quaternion = new THREE.Quaternion();
   private prevRightForeQuat: THREE.Quaternion = new THREE.Quaternion();
   
-  private readonly SMOOTHING_FACTOR = 0.18; // lower = smoother and less jittery
+  private readonly SMOOTHING_FACTOR = 0.6; // higher = more responsive, less lag
   private readonly MAX_ELBOW_ANGLE = Math.PI * 0.95; // Max 171 degrees
   
   public applyPose(

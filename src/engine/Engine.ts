@@ -6,7 +6,6 @@ import { Camera } from "../camera/Camera";
 import { SkeletonRetargeter } from "../animation/SkeletonRetargeter";
 import { MediaPipePoseTracker } from "../animation/MediaPipePoseTracker";
 import { ArmCalibrator } from "../animation/ArmCalibrator";
-import { DepthModelEstimator } from "../ml/DepthModelEstimator";
 
 export class Engine {
   private renderer: Renderer;
@@ -17,7 +16,6 @@ export class Engine {
   private webcam: Camera;
   private tracker!: MediaPipePoseTracker;
   private retargeter: SkeletonRetargeter;
-  private depthModel?: DepthModelEstimator;
 
   constructor() {
     this.renderer = new Renderer();
@@ -50,13 +48,7 @@ export class Engine {
     await this.webcam.start();
 
     this.tracker = new MediaPipePoseTracker(this.webcam.getVideo());
-    this.tracker.setCalibrator(this.calibrator);
     await this.tracker.initialize();
-
-    const depthModel = new DepthModelEstimator();
-    depthModel.initialize(this.webcam.getVideo());
-    this.tracker.setDepthSampler(depthModel);
-    this.depthModel = depthModel;
 
     console.log("aho");
     this.calibrator.start();
@@ -76,8 +68,6 @@ export class Engine {
         lastUpdate = now;
 
         try {
-          this.depthModel?.update();
-
           const pose = this.tracker.update();
 
           if (pose) {
@@ -85,7 +75,6 @@ export class Engine {
 
             if (this.calibrator.isCalibrated()) {
               this.retargeter.applyPose(pose, this.scene.getFigure(), this.calibrator);
-              this.scene.updateVampireFromPose(pose, this.calibrator);
             }
           }
         } catch (error) {
