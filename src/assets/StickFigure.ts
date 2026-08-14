@@ -20,8 +20,21 @@ export class StickFigure extends GameObject {
     this.leftLeg = new Limb(material, LimbType.Leg);
     this.rightLeg = new Limb(material, LimbType.Leg);
 
-    this.spine.getChest().add(this.leftArm.getRoot()).add(this.rightArm.getRoot());
-    this.spine.getHip().add(this.leftLeg.getRoot()).add(this.rightLeg.getRoot());
+this.spine
+    .getLeftShoulder()
+    .add(this.leftArm.getRoot());
+
+this.spine
+    .getRightShoulder()
+    .add(this.rightArm.getRoot());
+
+this.spine
+    .getLeftHip()
+    .add(this.leftLeg.getRoot());
+
+this.spine
+    .getRightHip()
+    .add(this.rightLeg.getRoot());
 
     super.setRoot(this.spine.getRoot());
   }

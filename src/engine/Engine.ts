@@ -2,12 +2,21 @@ import * as THREE from "three";
 import { Renderer } from "../rendering/Renderer";
 import { MainScene } from "../scene/MainScene";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { Camera } from "../camera/Camera";
+import { SkeletonRetargeter } from "../animation/SkeletonRetargeter";
+import { MediaPipePoseTracker } from "../animation/MediaPipePoseTracker";
+import { ArmCalibrator } from "../animation/ArmCalibrator";
 
 export class Engine {
   private renderer: Renderer;
   private camera: THREE.PerspectiveCamera;
   private scene: MainScene;
-private controls: OrbitControls;
+  private controls: OrbitControls;
+  private calibrator = new ArmCalibrator();
+  private webcam: Camera;
+  private tracker!: MediaPipePoseTracker;
+  private retargeter: SkeletonRetargeter;
+
   constructor() {
     this.renderer = new Renderer();
 
@@ -22,36 +31,67 @@ private controls: OrbitControls;
     this.camera.lookAt(0, 0, 0);
 
     this.scene = new MainScene();
-        this.controls = new OrbitControls(
-        this.camera,
-        this.renderer.getDomElement()
+
+    this.controls = new OrbitControls(
+      this.camera,
+      this.renderer.getDomElement(),
     );
 
     this.controls.target.set(0, 1, 0);
     this.controls.enableDamping = true;
+
+    this.webcam = Camera.getInstance();
+    this.retargeter = new SkeletonRetargeter();
   }
 
-public start(): void {
+  public async start(): Promise<void> {
+    await this.webcam.start();
 
-    this.scene.update();
+    this.tracker = new MediaPipePoseTracker(this.webcam.getVideo());
+    await this.tracker.initialize();
+
+    console.log("aho");
+    this.calibrator.start();
+    window.addEventListener("click", () => {
+      this.calibrator.beginCapture();
+    });
+    let lastUpdate = 0;
+
+    window.addEventListener("error", (event) => {
+      console.error("Uncaught error:", event.error);
+    });
+
     const animate = () => {
+      const now = performance.now();
 
+      if (now - lastUpdate > 2) {
+        lastUpdate = now;
+
+        try {
+          const pose = this.tracker.update();
+
+          if (pose) {
+            this.calibrator.update(pose);
+
+            if (this.calibrator.isCalibrated()) {
+              this.retargeter.applyPose(pose, this.scene.getFigure(), this.calibrator);
+            }
+          }
+        } catch (error) {
+          console.error("Pose update failed:", error);
+        }
+      }
+
+      try {
         this.controls.update();
+        this.renderer.render(this.scene.getScene(), this.camera);
+      } catch (error) {
+        console.error("Render failed:", error);
+      }
 
-        this.renderer.render(
-            this.scene.getScene(),
-            this.camera
-        );
-        this.renderer.render(
-            this.scene.getScene(),
-            this.camera
-        );
-
-        requestAnimationFrame(animate);
-        // console.log("Rendering frame");
+      requestAnimationFrame(animate);
     };
 
     animate();
-
-}
+  }
 }
