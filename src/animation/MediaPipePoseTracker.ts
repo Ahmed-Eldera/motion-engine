@@ -32,7 +32,7 @@ export class MediaPipePoseTracker extends PoseTracker {
                 vision,
                 {
                     baseOptions: {
-                        modelAssetPath: "/pose_landmarker_full.task",
+                        modelAssetPath: `${import.meta.env.BASE_URL}pose_landmarker_full.task`,
                         delegate: "GPU"
                     },
 

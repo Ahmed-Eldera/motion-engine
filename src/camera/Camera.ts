@@ -4,8 +4,8 @@ export class Camera {
   private canvas: HTMLCanvasElement;
 private ctx: CanvasRenderingContext2D;
 private static instance: Camera | null = null;
-private static readonly TEST_VIDEO_PATH = "/TestDrive.mp4";
-private useTestVideo = true;
+private static readonly TEST_VIDEO_PATH = `${import.meta.env.BASE_URL}TestDrive.mp4`;
+private useTestVideo = import.meta.env.DEV;
 private sourceButton: HTMLButtonElement | null = null;
 private controlsBar: HTMLDivElement | null = null;
   private constructor() {
