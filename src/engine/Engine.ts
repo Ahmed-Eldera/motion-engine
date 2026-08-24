@@ -45,26 +45,41 @@ export class Engine {
   }
 
   public async start(): Promise<void> {
-    await this.webcam.start();
+    try {
+      this.setLoading("Initializing 3D scene...");
+      await this.nextFrame();
 
-    this.tracker = new MediaPipePoseTracker(this.webcam.getVideo());
-    await this.tracker.initialize();
+      this.setLoading("Loading video feed...");
+      await this.webcam.start();
 
-    console.log("aho");
-    this.calibrator.start();
-    window.addEventListener("click", () => {
-      this.calibrator.beginCapture();
-    });
-    let lastUpdate = 0;
+      this.tracker = new MediaPipePoseTracker(this.webcam.getVideo());
+      this.setLoading("Loading pose model...");
+      await this.tracker.initialize();
 
-    window.addEventListener("error", (event) => {
-      console.error("Uncaught error:", event.error);
-    });
+      this.setLoading("Starting motion capture...");
+      await this.nextFrame();
 
-    const animate = () => {
-      const now = performance.now();
+      console.log("aho");
+      this.calibrator.start();
+      document.getElementById("calibrate-btn")?.addEventListener("click", () => {
+        this.startCalibrationCountdown();
+      });
+      let lastUpdate = 0;
+      let firstFrame = true;
 
-      if (now - lastUpdate > 2) {
+      window.addEventListener("error", (event) => {
+        console.error("Uncaught error:", event.error);
+      });
+
+      const animate = () => {
+        const now = performance.now();
+
+        if (firstFrame) {
+          firstFrame = false;
+          this.hideLoading();
+        }
+
+        if (now - lastUpdate > 2) {
         lastUpdate = now;
 
         try {
@@ -93,5 +108,70 @@ export class Engine {
     };
 
     animate();
+    } catch (error) {
+      console.error("Failed to start engine:", error);
+      this.showLoadingError(error);
+    }
+  }
+
+  private setLoading(message: string): void {
+    const el = document.getElementById("loading-message");
+    if (el) el.textContent = message;
+  }
+
+  private hideLoading(): void {
+    const el = document.getElementById("loading-screen");
+    if (el) el.classList.add("hidden");
+  }
+
+  private showLoadingError(error: unknown): void {
+    const el = document.getElementById("loading-message");
+    if (!el) return;
+
+    el.textContent = `Failed to start: ${(error as Error)?.message ?? String(error)}`;
+    el.classList.add("error");
+  }
+
+  private nextFrame(): Promise<void> {
+    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+  }
+
+  private countdownTimer: number | null = null;
+
+  private startCalibrationCountdown(): void {
+    if (this.calibrator.isCalibrated() || this.countdownTimer !== null) return;
+
+    let remaining = 5;
+    this.showCountdown(remaining);
+
+    const tick = () => {
+      remaining -= 1;
+
+      if (remaining > 0) {
+        this.showCountdown(remaining);
+        this.countdownTimer = window.setTimeout(tick, 1000);
+      } else {
+        this.hideCountdown();
+        this.countdownTimer = null;
+        this.calibrator.beginCapture();
+      }
+    };
+
+    this.countdownTimer = window.setTimeout(tick, 1000);
+  }
+
+  private showCountdown(seconds: number): void {
+    const el = document.getElementById("countdown");
+
+    if (!el) return;
+
+    el.textContent = String(seconds);
+    el.style.display = "flex";
+  }
+
+  private hideCountdown(): void {
+    const el = document.getElementById("countdown");
+
+    if (el) el.style.display = "none";
   }
 }

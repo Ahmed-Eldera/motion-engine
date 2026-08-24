@@ -11,22 +11,21 @@ export class ArmCalibrator {
     private state = CalibrationState.WAITING;
 
     private readonly SAMPLE_COUNT = 30;
+    private readonly ASPECT = 1280 / 720;
 
     private upperSamples: number[] = [];
     private forearmSamples: number[] = [];
+    private upperLegSamples: number[] = [];
+    private lowerLegSamples: number[] = [];
 
     private upperArmLength = 0;
     private forearmLength = 0;
-
-    private leftHandSize = 0;
-    private rightHandSize = 0;
-
-    private leftHandSizeSamples: number[] = [];
-    private rightHandSizeSamples: number[] = [];
+    private upperLegLength = 0;
+    private lowerLegLength = 0;
 
     public start(): void {
         this.showMessage(
-            "Calibration: Extend your LEFT arm sideways and hold your left hand open toward the camera, then click when ready."
+            "Calibration: Extend your LEFT arm sideways and keep your legs straight, then click to start the 5-second countdown."
         );
     }
 
@@ -39,8 +38,8 @@ export class ArmCalibrator {
 
         this.upperSamples = [];
         this.forearmSamples = [];
-        this.leftHandSizeSamples = [];
-        this.rightHandSizeSamples = [];
+        this.upperLegSamples = [];
+        this.lowerLegSamples = [];
 
         this.showMessage("Hold still...");
     }
@@ -50,34 +49,27 @@ export class ArmCalibrator {
         if (this.state !== CalibrationState.CAPTURING)
             return;
 
-        const upper =
-            pose.leftArm.parentJoint.distanceTo(
-                pose.leftArm.middleJoint
-            );
+        const upper = this.lengthWithAspect(pose.leftArm.parentJoint, pose.leftArm.middleJoint);
 
-        const forearm =
-            pose.leftArm.middleJoint.distanceTo(
-                pose.leftArm.endJoint
-            );
+        const forearm = this.lengthWithAspect(pose.leftArm.middleJoint, pose.leftArm.endJoint);
 
         this.upperSamples.push(upper);
         this.forearmSamples.push(forearm);
 
-        if (pose.leftHandSize != null) {
-            this.leftHandSizeSamples.push(pose.leftHandSize);
-        }
+        const upperLeg = this.lengthWithAspect(pose.leftLeg.parentJoint, pose.leftLeg.middleJoint);
 
-        if (pose.rightHandSize != null) {
-            this.rightHandSizeSamples.push(pose.rightHandSize);
-        }
+        const lowerLeg = this.lengthWithAspect(pose.leftLeg.middleJoint, pose.leftLeg.endJoint);
+
+        this.upperLegSamples.push(upperLeg);
+        this.lowerLegSamples.push(lowerLeg);
 
         if (this.upperSamples.length < this.SAMPLE_COUNT)
             return;
 
         this.upperArmLength = this.average(this.upperSamples);
         this.forearmLength = this.average(this.forearmSamples);
-        this.leftHandSize = this.leftHandSizeSamples.length > 0 ? this.average(this.leftHandSizeSamples) : 0;
-        this.rightHandSize = this.rightHandSizeSamples.length > 0 ? this.average(this.rightHandSizeSamples) : 0;
+        this.upperLegLength = this.average(this.upperLegSamples);
+        this.lowerLegLength = this.average(this.lowerLegSamples);
 
         this.state = CalibrationState.DONE;
 
@@ -87,6 +79,12 @@ export class ArmCalibrator {
     private average(values: number[]): number {
 
         return values.reduce((a, b) => a + b, 0) / values.length;
+    }
+
+    private lengthWithAspect(a: { x: number; y: number }, b: { x: number; y: number }): number {
+        const dx = (a.x - b.x) * this.ASPECT;
+        const dy = a.y - b.y;
+        return Math.hypot(dx, dy);
     }
 
     public isCalibrated(): boolean {
@@ -101,17 +99,12 @@ export class ArmCalibrator {
         return this.forearmLength;
     }
 
-    public getLeftHandSizeBaseline(): number {
-        return this.leftHandSize;
+    public getUpperLegLength(): number {
+        return this.upperLegLength;
     }
 
-    public getRightHandSizeBaseline(): number {
-        return this.rightHandSize;
-    }
-
-    public getHandSizeScale(hand: "left" | "right", currentSize: number): number {
-        const baseline = hand === "left" ? this.leftHandSize : this.rightHandSize;
-        return baseline > 0 ? currentSize / baseline : 1;
+    public getLowerLegLength(): number {
+        return this.lowerLegLength;
     }
 
     private showMessage(message: string): void {

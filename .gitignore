@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test videos (local only)
+public/TestDrive*.mp4
+public/TestDrive*.MP4

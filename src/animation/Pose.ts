@@ -6,9 +6,6 @@ export interface Pose {
 
     leftLeg: LimbPose;
     rightLeg: LimbPose;
-
-    leftHandSize?: number;
-    rightHandSize?: number;
 }
 export interface LimbPose {
     parentJoint: THREE.Vector3;

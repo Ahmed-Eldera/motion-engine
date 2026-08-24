@@ -28,7 +28,7 @@ export class MainScene {
 
     this.figure = new StickFigure(material);
     this.figure.getRoot().position.set(0, 5, 0);
-    this.figure.getRoot().rotation.y = Math.PI;
+    this.figure.getRoot().rotation.y = 0;
     this.scene.add(this.figure.getRoot());
 
     const axes = new THREE.AxesHelper(5);
