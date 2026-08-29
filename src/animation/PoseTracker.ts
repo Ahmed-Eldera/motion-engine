@@ -2,10 +2,11 @@ import type { Pose } from "./Pose";
 
 export abstract class PoseTracker {
   abstract initialize(): Promise<void>;
-  abstract update(): Pose;
+  abstract update(): Pose | null;
 
   protected updateCoordinatesDisplay(pose: Pose): void {
     const displayEl = document.getElementById('coordinates-display');
+    if (!displayEl) return;
     
         displayEl.innerHTML = `
             <h3>Pose Coordinates</h3>

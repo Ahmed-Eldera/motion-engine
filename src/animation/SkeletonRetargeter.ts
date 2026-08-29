@@ -134,7 +134,7 @@ export class SkeletonRetargeter {
     const upperArmWorldDir = this.getUpperArmWorldDirection(target);
     worldDirection = this.constrainAngle(worldDirection, upperArmWorldDir, this.MAX_ELBOW_ANGLE);
 
-    const localDirection = this.toLocalDirection(worldDirection, target.middleBone.getStartJoint().parent);
+    const localDirection = this.toLocalDirection(worldDirection, target.middleBone.getStartJoint().parent!);
 
     const prevQuat = isLeft ? this.prevLeftForeQuat : this.prevRightForeQuat;
     this.setDirectionSmoothed(target.middleBone, localDirection, prevQuat, isLeft ? "leftFore" : "rightFore");
@@ -170,7 +170,7 @@ export class SkeletonRetargeter {
     const upperLegWorldDir = this.getUpperArmWorldDirection(target);
     worldDirection = this.constrainAngle(worldDirection, upperLegWorldDir, this.MAX_KNEE_ANGLE);
 
-    const localDirection = this.toLocalDirection(worldDirection, target.middleBone.getStartJoint().parent);
+    const localDirection = this.toLocalDirection(worldDirection, target.middleBone.getStartJoint().parent!);
 
     const prevQuat = isLeft ? this.prevLeftLowerLegQuat : this.prevRightLowerLegQuat;
     this.setDirectionSmoothed(target.middleBone, localDirection, prevQuat, isLeft ? "leftLowerLeg" : "rightLowerLeg");
