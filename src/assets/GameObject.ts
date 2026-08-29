@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 export abstract class GameObject {
-  private root: THREE.Object3D;
+  private root!: THREE.Object3D;
 
     public update(deltaTime: number): void {
         this.root.rotation.z += deltaTime;

@@ -3,9 +3,9 @@ import { Bone } from "./Bone";
 import { GameObject } from "./GameObject";
 
 export class Limb extends GameObject {
-  public readonly parentBone: Bone;
-  public readonly middleBone: Bone;
-  public readonly endBone: Bone;
+  public readonly parentBone!: Bone;
+  public readonly middleBone!: Bone;
+  public readonly endBone!: Bone;
 
   constructor(material: THREE.Material, limbType: string) {
     super();
@@ -18,6 +18,8 @@ export class Limb extends GameObject {
         this.parentBone = new Bone(1.2,0.1,material);
         this.middleBone = new Bone(1.0, 0.09, material);
         this.endBone = new Bone(0.4, 0.08, material);
+    } else {
+        throw new Error(`Unknown limbType: ${limbType}`);
     }
 
     this.parentBone.attach(this.middleBone);

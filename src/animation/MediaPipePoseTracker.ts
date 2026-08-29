@@ -44,7 +44,7 @@ export class MediaPipePoseTracker extends PoseTracker {
             );
     }
 
-    public update(): Pose {
+    public update(): Pose | null {
         if (this.video.readyState < 2 || this.video.videoWidth === 0) {
             return null;
         }
